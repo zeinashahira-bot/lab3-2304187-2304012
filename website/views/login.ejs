@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Back - Database Lab 2</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card">
+        <h2>Welcome Back</h2>
+
+        <form action="/login" method="POST" data-check novalidate>
+            <ul class="errors js-errors" <%= errors.length === 0 ? 'hidden' : '' %>>
+                <% errors.forEach(function (message) { %>
+                    <li><%= message %></li>
+                <% }) %>
+            </ul>
+
+            <div class="field">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email"
+                       value="<%= values.email || '' %>" data-required="Email is required">
+            </div>
+
+            <div class="field">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password"
+                       data-required="Password is required">
+            </div>
+
+            <button type="submit" class="btn btn-full">Login</button>
+        </form>
+
+        <p class="link">Don't have an account? <a href="/register">Sign up here</a></p>
+    </div>
+    <script src="/validate.js"></script>
+</body>
+</html>

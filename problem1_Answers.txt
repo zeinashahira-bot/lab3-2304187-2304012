@@ -1,0 +1,54 @@
+Problem 1 Answers - COMPANY database
+
+Q1.1 Insert a row in the DEPARTMENT table that references a row in the EMPLOYEE table. Then try to delete the referenced row. What will happen?
+
+SQL used:
+INSERT INTO DEPARTMENT (Dnumber, Dname, mgr_ssn, mgr_start_date) VALUES (10, 'Testing', '111223333', '2026-01-01');
+DELETE FROM EMPLOYEE WHERE ssn = '111223333';
+
+Output / error:
+The INSERT works: 1 row(s) affected.
+The DELETE fails:
+Error Code: 1451. Cannot delete or update a parent row: a foreign key constraint fails (`company`.`department`, CONSTRAINT `department_ibfk_1` FOREIGN KEY (`mgr_ssn`) REFERENCES `employee` (`ssn`))
+
+Explanation: MySQL rejects the deletion because the employee is still the manager of department 10. Deleting it would leave a foreign key value with no matching primary key, which breaks referential integrity.
+
+
+Q1.2 Insert a row in the PROJECT table that references a row in the DEPARTMENT table that doesn't exist yet. What will happen?
+
+SQL used:
+INSERT INTO PROJECT (Pnumber, Pname, Plocation, Dno) VALUES (99, 'NewProject', 'Cairo', 999);
+
+Output / error:
+Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails (`company`.`project`, CONSTRAINT `project_ibfk_1` FOREIGN KEY (`Dno`) REFERENCES `department` (`Dnumber`))
+
+Explanation: MySQL rejects the insert because department number 999 does not exist in the parent table DEPARTMENT.
+
+
+Q1.3 If mgr_ssn and Dno are both NOT NULL, how will you insert the first row in EMPLOYEE or DEPARTMENT?
+
+Problem: this is a circular dependency. The first EMPLOYEE needs an existing DEPARTMENT (Dno), and the first DEPARTMENT needs an existing EMPLOYEE (mgr_ssn). Both columns are NOT NULL, so neither can be NULL, and neither row can be inserted first while the foreign keys are checked.
+
+SQL used (first attempts, on the empty tables):
+INSERT INTO EMPLOYEE (ssn, fname, lname, bdate, address, gender, salary, Dno) VALUES ('111223333', 'Zeina', 'Amr', '2005-09-27', 'Cairo, Egypt', 'F', 30000.00, 1);
+INSERT INTO DEPARTMENT (Dnumber, Dname, mgr_ssn, mgr_start_date) VALUES (1, 'Headquarters', '111223333', '2025-01-01');
+
+Output / error:
+Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails (`company`.`employee`, CONSTRAINT `employee_ibfk_1` FOREIGN KEY (`Dno`) REFERENCES `department` (`Dnumber`))
+Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails (`company`.`department`, CONSTRAINT `department_ibfk_1` FOREIGN KEY (`mgr_ssn`) REFERENCES `employee` (`ssn`))
+
+Solution: switch the foreign key checks off, insert the first rows, and switch the checks on again.
+
+SQL used:
+SET FOREIGN_KEY_CHECKS = 0;
+INSERT INTO EMPLOYEE (ssn, fname, lname, bdate, address, gender, salary, Dno) VALUES ('111223333', 'Zeina', 'Amr', '2005-09-27', 'Cairo, Egypt', 'F', 30000.00, 1);
+INSERT INTO DEPARTMENT (Dnumber, Dname, mgr_ssn, mgr_start_date) VALUES (1, 'Headquarters', '111223333', '2025-01-01');
+SET FOREIGN_KEY_CHECKS = 1;
+
+Output:
+0 row(s) affected
+1 row(s) affected
+1 row(s) affected
+0 row(s) affected
+
+Another way: create the tables without the foreign key on DEPARTMENT.mgr_ssn, insert the rows, and add that foreign key afterwards with ALTER TABLE ... ADD FOREIGN KEY.
