@@ -35,7 +35,7 @@ document.querySelectorAll('form[data-check]').forEach(function (form) {
             }
         });
 
-        var box = form.querySelector('.js-errors');
+        var box = document.querySelector('.js-errors');
         if (messages.length > 0) {
             event.preventDefault();
             box.innerHTML = '';

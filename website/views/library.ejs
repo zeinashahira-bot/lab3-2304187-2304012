@@ -24,6 +24,8 @@
             </ul>
         <% } %>
 
+        <ul class="errors js-errors" hidden></ul>
+
         <h3>Authors</h3>
         <div class="table-wrap">
             <table>
@@ -37,7 +39,7 @@
                 <% authors.forEach(function (author) { %>
                     <tr>
                         <td><%= author.author_id %></td>
-                        <td><input type="text" name="name" value="<%= author.name %>" form="edit-author-<%= author.author_id %>"></td>
+                        <td><input type="text" name="name" value="<%= author.name %>" form="edit-author-<%= author.author_id %>" data-required="Author name is required" data-pattern="^[A-Za-zÀ-ÿ\s'-]+$" data-patternmsg="Author name cannot contain numbers"></td>
                         <td><input type="text" name="country" value="<%= author.country %>" form="edit-author-<%= author.author_id %>"></td>
                         <td>
                             <% if (author.photo) { %>
@@ -45,7 +47,7 @@
                             <% } %>
                         </td>
                         <td class="actions">
-                            <form id="edit-author-<%= author.author_id %>" action="/authors/<%= author.author_id %>/edit" method="POST"></form>
+                            <form id="edit-author-<%= author.author_id %>" action="/authors/<%= author.author_id %>/edit" method="POST" data-check></form>
                             <button type="submit" class="btn btn-light" form="edit-author-<%= author.author_id %>">Save</button>
                             <form action="/authors/<%= author.author_id %>/delete" method="POST"
                                   onsubmit="return confirm('Delete this author and all of their books?');">
@@ -60,10 +62,10 @@
             <p class="empty">No authors yet. Add one below!</p>
         <% } %>
 
-        <form action="/authors/add" method="POST" enctype="multipart/form-data" class="add-form">
-            <input type="number" name="author_id" placeholder="Author ID" required>
-            <input type="text" name="name" placeholder="Name" required>
-            <input type="text" name="country" placeholder="Country" required>
+        <form action="/authors/add" method="POST" enctype="multipart/form-data" class="add-form" data-check>
+            <input type="number" name="author_id" placeholder="Author ID" required data-required="Author ID is required">
+            <input type="text" name="name" placeholder="Name" required data-required="Author name is required" data-pattern="^[A-Za-zÀ-ÿ\s'-]+$" data-patternmsg="Author name cannot contain numbers">
+            <input type="text" name="country" placeholder="Country" required data-required="Country is required">
             <input type="file" name="photo">
             <button type="submit" class="btn">Add author</button>
         </form>
@@ -115,5 +117,6 @@
             <button type="submit" class="btn">Add book</button>
         </form>
     </div>
+    <script src="/validate.js"></script>
 </body>
 </html>
